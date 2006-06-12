@@ -167,8 +167,8 @@ module ModelFormatter # :nodoc:
       end
 
 			# Define the getter for attr
-      define_method my_options[:formatted_attr] + '=' do |value|
-		    my_options[:formatter].method(:to).call(value)
+      define_method my_options[:formatted_attr] + '=' do |str|
+		    value = my_options[:formatter].method(:to).call(str)
 
         self.send(attr.to_s + '=', value)
       end
