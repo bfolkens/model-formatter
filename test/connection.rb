@@ -8,8 +8,7 @@ ActiveRecord::Base.establish_connection(
   :host     => "localhost",
   :username => "root",
   :password => "",
-  :database => "test",
-  :socket => "/var/run/mysqld/mysqld.sock"
+  :database => "test"
 )
 
 load File.dirname(__FILE__) + "/fixtures/schema.rb"

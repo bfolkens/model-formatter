@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'action_view'
+
 module Formatters
 	class FormatCurrency < Format
 		include ActionView::Helpers::NumberHelper

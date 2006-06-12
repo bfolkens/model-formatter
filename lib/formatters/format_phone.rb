@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'action_view'
+
 module Formatters
 	class FormatPhone < Format
 		include ActionView::Helpers::NumberHelper

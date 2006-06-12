@@ -3,11 +3,11 @@ module Formatters
 		include ActionView::Helpers::NumberHelper
 
 		def from(value)
-			number_with_precision value
+			number_with_delimiter number_with_precision(value)
 		end
 
 		def to(str)
-			value.to_f
+			str.gsub(/,/, '').to_f
 		end
 	end
 end

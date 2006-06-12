@@ -15,12 +15,12 @@ require File.dirname(__FILE__) + '/fixtures/entry'
 
 class ModelFormatterTest < Test::Unit::TestCase
 	def setup
-		Entry.format :some_integer, :as => :integer
-		Entry.format :some_boolean, :prefix => 'fmt_', :as => :boolean
-		Entry.format :sales_tax, :as => Formatters::FormatCurrency
-		Entry.format :area, :from => Proc.new {|value| sprintf('%2d', value) + ' sq. ft.'},
-												:to => Proc.new {|str| str.gsub(/[^0-9]/, '')}
-		Entry.format :complex_field do
+		Entry.format_column :some_integer, :as => :integer
+		Entry.format_column :some_boolean, :prefix => 'fmt_', :as => :boolean
+		Entry.format_column :sales_tax, :as => Formatters::FormatCurrency
+		Entry.format_column :area, :from => Proc.new {|value| sprintf('%2d', value) + ' sq. ft.'},
+															 :to => Proc.new {|str| str.gsub(/[^0-9]/, '')}
+		Entry.format_column :complex_field do
 			def from(value)
 				'bouya ' + value
 			end
@@ -29,7 +29,7 @@ class ModelFormatterTest < Test::Unit::TestCase
 				str.gsub(/^bouya /, '')
 			end
 		end
-		Entry.format :phone, :as => :phone
+		Entry.format_column :phone, :as => :phone
 	end
 
 	def test_should_define_getters

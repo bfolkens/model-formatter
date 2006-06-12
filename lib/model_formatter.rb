@@ -89,20 +89,20 @@ module ModelFormatter # :nodoc:
   #
   #		class Widget < ActiveRecord::Base
 	#			# Set an integer field as a symbol
-	#     format :some_integer, :as => :integer
+	#     format_column :some_integer, :as => :integer
 	#
 	#     # Specify the type as a class
-  #     format :sales_tax, :as => Formatters::FormatCurrency
+  #     format_column :sales_tax, :as => Formatters::FormatCurrency
 	#
 	#     # Change the prefix of the generated methods and specify type as a symbol
-  #     format :sales_tax, :prefix => 'fmt_', :as => :currency
+  #     format_column :sales_tax, :prefix => 'fmt_', :as => :currency
 	#
 	#     # Use specific procedures to convert the data +from+ and +to+ the target
-  #     format :area, :from => Proc.new {|field| number_with_delimiter sprintf('%2d', field)},
-  #                   :to => Proc.new {|str| str.gsub(/,/, '')}
+  #     format_column :area, :from => Proc.new {|field| number_with_delimiter sprintf('%2d', field)},
+  #                   			 :to => Proc.new {|str| str.gsub(/,/, '')}
 	#
 	#     # Use a block to define the formatter methods
-  #     format :sales_tax do
+  #     format_column :sales_tax do
   #       def from(field)
   #         number_to_currency field
   #       end
@@ -141,11 +141,11 @@ module ModelFormatter # :nodoc:
     # handle the +attr+ attribute as a "formatted" column, generating additional methods as explained
     # above. You should pass the attribute's name as a symbol, like this:
     #
-    #   format :sale_price
+    #   format_column :sale_price
     #
     # You can pass in an options hash that overrides the options
     # in +DEFAULT_OPTIONS+.
-    def format(attr, options={}, &fmt_block)
+    def format_column(attr, options={}, &fmt_block)
 			options[:block] = fmt_block if block_given?
       options = DEFAULT_OPTIONS.merge(options) if options
 
