@@ -9,11 +9,28 @@ module ModelFormatter # :nodoc:
     options[:attr] = attr
     options[:column_prefix] ||= "formatted_"
     options[:formatted_attr] ||= "#{options[:column_prefix]}#{attr}"
-    
-    options[:from], options[:to] = [options[:as].class.method(:from), options[:as].class.method(:to)] if options[:as]
-    
+ 
+ 		options[:as] ||= default_formatter_for(attr)
+		options[:as] = formatter_class_for(options[:as]) unless options[:as].nil?
+		options[:block] ||= options[:as].new unless options[:as].nil?
+
+		options[:from], options[:to] = [options[:block].method(:from),
+																		options[:block].method(:to)] if options[:block]
+
     options
   end
+
+	def self.default_formatter_for(attr)
+		formatter_class_for attr.send(:class)
+	end
+
+	def self.formatter_class_for(type_name)
+		return type_name if type_name.kind_of? Class and type_name.superclass == Formatters::Format
+
+		type_name = type_name.to_s.capitalize if type_name.is_a? Symbol
+		formatter_class = const_get('Formatters').const_get("Format#{type_name}")
+		raise Formatters::FormatNotFoundException unless formatter_class.superclass == Formatters::Format
+	end
 
 	require File.dirname(__FILE__) + '/formatters.rb'
 	
@@ -22,10 +39,20 @@ module ModelFormatter # :nodoc:
 	# columns as "formatted columns" like in this example:
   #
   #		class Widget < ActiveRecord::Base
+	#			# Automatically determine integer type and format to the default
+	#     format :some_integer
+	#
+	#     # Specify the type as a class
+  #     format :sales_tax, :as => Formatters::FormatCurrency
+	#
+	#     # Change the prefix of the generated methods and specify type as a symbol
+  #     format :sales_tax, :prefix => 'fmt_', :as => :currency
+	#
+	#     # Use specific procedures to convert the data +from+ and +to+ the target
   #     format :area, :from => Proc.new {|field| number_with_delimiter sprintf('%2d', field)},
   #                   :to => Proc.new {|str| str.gsub(/,/, '')}
-  #     format :sales_tax, :as => Formatters::Currency
-  #     format :sales_tax, :prefix => 'fmt_', :as => :currency
+	#
+	#     # Use a block to define the formatter methods
   #     format :sales_tax do
   #       def from(field)
   #         number_to_currency field
@@ -34,6 +61,9 @@ module ModelFormatter # :nodoc:
   #         str.gsub(/[\$,]/, '')
   #       end
   #     end
+	#
+	#     ...
+	#
   #		end
   #
   # The methods of this module are automatically included into <tt>ActiveRecord::Base</tt>
@@ -54,7 +84,7 @@ module ModelFormatter # :nodoc:
     DEFAULT_OPTIONS = {
       :column_prefix => nil,
       :formatted_attr => nil,
-      :as => Formatters::Currency,
+      :as => nil,
       :from => nil,
       :to => nil
     }.freeze
@@ -66,7 +96,8 @@ module ModelFormatter # :nodoc:
     #
     # You can pass in an options hash that overrides the options
     # in +DEFAULT_OPTIONS+.
-    def format(attr, options={})
+    def format(attr, options={}, &fmt_block)
+			options[:block] = fmt_block if block_given?
       options = DEFAULT_OPTIONS.merge(options) if options
 
 			# Create the actual options
@@ -85,7 +116,7 @@ module ModelFormatter # :nodoc:
 			  self.method(my_options[:from]).call(value)
       end
 
-      define_method my_options[:formatted_attr] do |value|
+      define_method my_options[:formatted_attr] + '=' do |value|
         unless value.nil?
           # Convert the value
 			    self.method(my_options[:to]).call(value)
