@@ -7,29 +7,80 @@ module ModelFormatter # :nodoc:
   def self.init_options(defaults, model, attr)
     options = defaults.dup
     options[:attr] = attr
-    options[:column_prefix] ||= "formatted_"
-    options[:formatted_attr] ||= "#{options[:column_prefix]}#{attr}"
- 
- 		options[:as] ||= default_formatter_for(attr)
-		options[:as] = formatter_class_for(options[:as]) unless options[:as].nil?
-		options[:block] ||= options[:as].new unless options[:as].nil?
+    options[:prefix] ||= "formatted_"
+    options[:formatted_attr] ||= "#{options[:prefix]}#{attr}"
 
-		options[:from], options[:to] = [options[:block].method(:from),
-																		options[:block].method(:to)] if options[:block]
+		# If :as is set, then it must be either a formatter Class, Symbol, or String
+		options[:as] = formatter_class_for(options[:as]) unless options[:as].nil?
+
+		# Define :block from a block based on :from and :to if they're both set
+		options[:block] = Proc.new do
+			def from(value)
+				options[:from].call(value)
+			end
+
+			def to(str)
+				options[:to].call(str)
+			end
+		end unless options[:from].nil? or options[:to].nil?
+
+		# Define the :as from a :block if :block is defined
+		options[:as] = define_formatter(attr, &options[:block]) unless options[:block].nil?
+
+		# If :as is still not defined raise an error
+ 		raise 'No formatting options have been defined.' if options[:as].nil?
+
+		# Instantiate the formatter for this attribute
+		options[:formatter] = options[:as].new
 
     options
   end
 
-	def self.default_formatter_for(attr)
-		formatter_class_for attr.send(:class)
+	# Define a formatter like the actual physical classes
+	# this could easily be done with text similar to the exact
+	# layout of the format classes, but this should be faster.
+	def self.define_formatter(attr, &formatter)
+		# The convention is to name these custom formatters
+		# differently than the other formatting classes
+		class_name = "CustomFormat#{attr.to_s.camelize}"
+
+		# Create a class in the same module as the others
+		clazz = Class.new(Formatters::Format)
+		Formatters.const_set class_name, clazz
+
+		# Define the class body
+		clazz.class_eval &formatter
+		return clazz
 	end
 
+	# Return the formatter class for a class, symbol, or string defining
+	# the name of a formatter class.  If it's a symbol, check the Formatters
+	# module for the class that matches the camelized name of the symbol
+	# with 'Format' prepended.
 	def self.formatter_class_for(type_name)
-		return type_name if type_name.kind_of? Class and type_name.superclass == Formatters::Format
+		# If the type_name is a class, don't do anything to it
+		formatter_class = type_name if type_name.kind_of? Class
 
-		type_name = type_name.to_s.capitalize if type_name.is_a? Symbol
-		formatter_class = const_get('Formatters').const_get("Format#{type_name}")
-		raise Formatters::FormatNotFoundException unless formatter_class.superclass == Formatters::Format
+		# Format a symbol or string into a formatter_class
+		if type_name.is_a? Symbol or type_name.is_a? String
+			type_name = type_name.to_s.capitalize
+
+			# Construct the class name from the type_name
+			formatter_name = "Format#{type_name}"
+			formatter_class = nil
+			begin
+				formatter_class = Formatters.const_get(formatter_name)
+			rescue NameError => ne
+				# Ignore this, caught below
+			end
+		end
+
+		# Make sure the name of this is found in the Formatters module and that
+		# it's the correct superclass
+		return formatter_class unless formatter_class.nil? or
+																	formatter_class.superclass != Formatters::Format
+
+		raise Formatters::FormatNotFoundException.new("Cannot find formatter 'Formatters::#{formatter_name}'")
 	end
 
 	require File.dirname(__FILE__) + '/formatters.rb'
@@ -39,8 +90,8 @@ module ModelFormatter # :nodoc:
 	# columns as "formatted columns" like in this example:
   #
   #		class Widget < ActiveRecord::Base
-	#			# Automatically determine integer type and format to the default
-	#     format :some_integer
+	#			# Set an integer field as a symbol
+	#     format :some_integer, :as => :integer
 	#
 	#     # Specify the type as a class
   #     format :sales_tax, :as => Formatters::FormatCurrency
@@ -72,7 +123,7 @@ module ModelFormatter # :nodoc:
   # == Generated Methods
   #
   # After calling "<tt>format :sales_tax</tt>" as in the example above, a number of instance methods
-  # will automatically be generated, all prefixed by "formatted_" unless :column_prefix or :formatter_attr
+  # will automatically be generated, all prefixed by "formatted_" unless :prefix or :formatter_attr
   # have been set:
   #
   # * <tt>Widget#formatted_sales_tax=(value)</tt>: This will set the <tt>sales_tax</tt> of the widget using
@@ -82,7 +133,7 @@ module ModelFormatter # :nodoc:
 	module ClassMethods
     # default options. You can override these with +model_formatter+'s +options+ parameter
     DEFAULT_OPTIONS = {
-      :column_prefix => nil,
+      :prefix => nil,
       :formatted_attr => nil,
       :as => nil,
       :from => nil,
@@ -105,28 +156,24 @@ module ModelFormatter # :nodoc:
                                                 Inflector.underscore(self.name).to_s,
                                                 attr.to_s)
 
+			# Define the setter for attr
       define_method my_options[:formatted_attr] do ||
-				# Retrieve the value
 				value = method(attr).call
-
-				# Default return the raw value if value is nil
 				return value if value.nil?
 
-        # Convert the value
 			  self.method(my_options[:from]).call(value)
       end
 
+			# Define the getter for attr
       define_method my_options[:formatted_attr] + '=' do |value|
         unless value.nil?
-          # Convert the value
 			    self.method(my_options[:to]).call(value)
 			  end
 
-        # Set the attribute vlaue
         self.update_attributes(attr, value)
       end
 
-      # this creates a closure keeping a reference to my_options
+      # This creates a closure keeping a reference to my_options
       # right now that's the only way we store the options. We
       # might use a class attribute as well
       define_method "#{attr}_options" do

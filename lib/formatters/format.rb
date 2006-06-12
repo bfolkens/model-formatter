@@ -9,12 +9,12 @@ module Formatters
 		end
 	end
 
-	class FormattingException
+	class FormattingException < Exception
 	end
 
-	class FormatNotDefinedException
+	class FormatNotDefinedException < Exception
 	end
 
-	class FormatNotFoundException
+	class FormatNotFoundException < Exception
 	end
 end
