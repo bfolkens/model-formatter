@@ -46,7 +46,9 @@ module ModelFormatter # :nodoc:
 
 		# Create a class in the same module as the others
 		clazz = Class.new(Formatters::Format)
-		Formatters.const_set class_name, clazz
+		silence_warnings do
+			Formatters.const_set class_name, clazz
+		end
 
 		# Define the class body
 		clazz.class_eval &formatter
@@ -158,25 +160,23 @@ module ModelFormatter # :nodoc:
 
 			# Define the setter for attr
       define_method my_options[:formatted_attr] do ||
-				value = method(attr).call
+				value = self.send(attr)
 				return value if value.nil?
 
-			  self.method(my_options[:from]).call(value)
+			  my_options[:formatter].method(:from).call(value)
       end
 
 			# Define the getter for attr
       define_method my_options[:formatted_attr] + '=' do |value|
-        unless value.nil?
-			    self.method(my_options[:to]).call(value)
-			  end
+		    my_options[:formatter].method(:to).call(value)
 
-        self.update_attributes(attr, value)
+        self.send(attr.to_s + '=', value)
       end
 
       # This creates a closure keeping a reference to my_options
       # right now that's the only way we store the options. We
       # might use a class attribute as well
-      define_method "#{attr}_options" do
+      define_method "#{attr}_formatting_options" do
         my_options
       end
     end
