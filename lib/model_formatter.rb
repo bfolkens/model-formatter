@@ -13,25 +13,21 @@ module ModelFormatter # :nodoc:
 		# If :as is set, then it must be either a formatter Class, Symbol, or String
 		options[:as] = formatter_class_for(options[:as]) unless options[:as].nil?
 
-		# Define :block from a block based on :from and :to if they're both set
-		options[:block] = Proc.new do
-			def from(value)
-				options[:from].call(value)
-			end
-
-			def to(str)
-				options[:to].call(str)
-			end
-		end unless options[:from].nil? or options[:to].nil?
-
 		# Define the :as from a :block if :block is defined
 		options[:as] = define_formatter(attr, &options[:block]) unless options[:block].nil?
 
-		# If :as is still not defined raise an error
- 		raise 'No formatting options have been defined.' if options[:as].nil?
+		# Instantiate the formatter for this attribute if we've been called with :as or a block
+		options[:formatter] = options[:as].new unless options[:as].nil?
 
-		# Instantiate the formatter for this attribute
-		options[:formatter] = options[:as].new
+		# Define :formatter from a block based on :from and :to if they're both set
+		if !options[:from].nil? and !options[:to].nil?
+			options[:formatter] = Module.new
+			options[:formatter].class.send :define_method, :from, options[:from]
+			options[:formatter].class.send :define_method, :to, options[:to]
+		end
+
+		# If :as is still not defined raise an error
+ 		raise 'No formatting options have been defined.' if options[:formatter].nil?
 
     options
   end
