@@ -5,6 +5,6 @@ ActiveRecord::Schema.define do
     t.column :sales_tax, :float
     t.column :area, :float
 		t.column :complex_field, :string
-		t.column :phone, :string
+		t.column :phone, :integer
   end
 end

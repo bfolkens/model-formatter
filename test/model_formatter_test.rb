@@ -32,7 +32,7 @@ class ModelFormatterTest < Test::Unit::TestCase
 		Entry.format :phone, :as => :phone
 	end
 
-	def test_column_get_with_convert_method
+	def test_should_define_getters
 		assert Entry.new.respond_to?('formatted_some_integer')
 		assert Entry.new.respond_to?('fmt_some_boolean')
 		assert Entry.new.respond_to?('formatted_sales_tax')
@@ -41,13 +41,28 @@ class ModelFormatterTest < Test::Unit::TestCase
 		assert Entry.new.respond_to?('formatted_phone')
 	end
 
-	def test_column_set_with_convert_method
+	def test_should_define_setters
 		assert Entry.new.respond_to?('formatted_some_integer=')
 		assert Entry.new.respond_to?('fmt_some_boolean=')
 		assert Entry.new.respond_to?('formatted_sales_tax=')
 		assert Entry.new.respond_to?('formatted_area=')
 		assert Entry.new.respond_to?('formatted_complex_field=')
 		assert Entry.new.respond_to?('formatted_phone=')
+	end
+
+	def test_should_respond_to_basic_definition
+		e = Entry.new
+		e.some_integer = 3123
+		assert_equal '3,123', e.formatted_some_integer
+
+		e.formatted_some_integer = '3,123'
+		assert_equal 3123, e.some_integer
+	end
+
+	def test_should_respond_to_proc_definition
+	end
+
+	def test_should_respond_to_block_definition
 	end
 end
 
