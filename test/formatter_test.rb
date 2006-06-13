@@ -7,5 +7,8 @@ class FormattersTest < Test::Unit::TestCase
 
 	def test_should_go_from_and_back_to_value
 	end
+
+	def test_should_pass_nil_on_empty_and_nil
+	end
 end
 
