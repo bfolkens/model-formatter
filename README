@@ -1,4 +1,51 @@
-ModelFormatter
-==============
+== Overview
+The ModelFormatter module allows you to easily handle fields that need to be formatted or stripped
+of formatting as the are set or retrieved from the database. You can designate one or more of your
+columns as "formatted columns" like in this example:
 
-Description goes here
+  class Widget < ActiveRecord::Base
+    # Set an integer field as a symbol
+    format_column :some_integer, :as => :integer
+
+    # Specify the type as a class
+    format_column :sales_tax, :as => Formatters::FormatCurrency
+
+    # Change the prefix of the generated methods and specify type as a symbol
+    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:on_empty => 'N/A'}
+
+    # Use specific procedures to convert the data +from+ and +to+ the target
+    format_column :area, :from => Proc.new {|value, options| number_with_delimiter sprintf('%2d', value)},
+                         :to => Proc.new {|str, options| str.gsub(/,/, '')}
+
+    # Use a block to define the formatter methods
+    format_column :sales_tax do
+      def from(value, options = {})
+        number_to_currency value
+      end
+      def to(str, options = {})
+        str.gsub(/[\$,]/, '')
+      end
+    end
+
+    ...
+  end
+
+The methods of this module are automatically included into <tt>ActiveRecord::Base</tt>
+as class methods, so that you can use them in your models.
+
+== Documentation
+For more detailed documentation, create the rdocs with the following command:
+
+<tt>rake rdoc</tt>
+
+== Running Unit Tests
+By default, the ModelFormatter plugin uses the mysql +test+ database, running on +localhost+.  To run the tests, enter the following:
+
+<tt>rake</tt>
+
+== Bugs & Feedback
+Let me know if I've screwed something up at <tt>bfolkens@gmail.com</tt>.  Please put [ModelFormatter] in the subject.
+
+== Credits
+Sebastian Kanthak's file_column plugin - used for ideas and best practices.
+
