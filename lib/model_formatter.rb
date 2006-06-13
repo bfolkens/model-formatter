@@ -95,7 +95,7 @@ module ModelFormatter # :nodoc:
   #     format_column :sales_tax, :as => Formatters::FormatCurrency
 	#
 	#     # Change the prefix of the generated methods and specify type as a symbol
-  #     format_column :sales_tax, :prefix => 'fmt_', :as => :currency
+  #     format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:on_empty => 'N/A'}
 	#
 	#     # Use specific procedures to convert the data +from+ and +to+ the target
   #     format_column :area, :from => Proc.new {|field| number_with_delimiter sprintf('%2d', field)},
@@ -135,7 +135,8 @@ module ModelFormatter # :nodoc:
       :formatted_attr => nil,
       :as => nil,
       :from => nil,
-      :to => nil
+      :to => nil,
+			:options => nil
     }.freeze
 
     # handle the +attr+ attribute as a "formatted" column, generating additional methods as explained
@@ -159,12 +160,14 @@ module ModelFormatter # :nodoc:
 				value = self.send(attr)
 				return value if value.nil?
 
-			  my_options[:formatter].method(:from).call(value)
+			  from_method = my_options[:formatter].method(:from)
+				from_method.call(value, my_options[:options])
       end
 
 			# Define the getter for attr
       define_method my_options[:formatted_attr] + '=' do |str|
-		    value = my_options[:formatter].method(:to).call(str)
+				to_method = my_options[:formatter].method(:to)
+		    value = to_method.call(str, my_options[:options])
 
         self.send(attr.to_s + '=', value)
       end

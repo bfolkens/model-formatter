@@ -5,11 +5,11 @@ module Formatters
 	class FormatDecimal < Format
 		include ActionView::Helpers::NumberHelper
 
-		def from(value)
+		def from(value, options = {})
 			number_with_delimiter number_with_precision(value)
 		end
 
-		def to(str)
+		def to(str, options = {})
 			return nil if str.nil? or str.empty?
 			str.gsub(/,/, '').to_f
 		end

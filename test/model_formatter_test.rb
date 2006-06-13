@@ -18,14 +18,14 @@ class ModelFormatterTest < Test::Unit::TestCase
 		Entry.format_column :some_integer, :as => :integer
 		Entry.format_column :some_boolean, :prefix => 'fmt_', :as => :boolean
 		Entry.format_column :sales_tax, :as => Formatters::FormatCurrency
-		Entry.format_column :area, :from => Proc.new {|value| sprintf('%2d', value) + ' sq. ft.'},
-															 :to => Proc.new {|str| str.gsub(/[^0-9]/, '')}
+		Entry.format_column :area, :from => Proc.new {|value, options| sprintf('%2d', value) + ' sq. ft.'},
+															 :to => Proc.new {|str, options| str.gsub(/[^0-9]/, '')}
 		Entry.format_column :complex_field do
-			def from(value)
+			def from(value, options = {})
 				'bouya ' + value
 			end
 
-			def to(str)
+			def to(str, options = {})
 				str.gsub(/^bouya /, '')
 			end
 		end

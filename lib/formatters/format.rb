@@ -1,10 +1,10 @@
 module Formatters
 	class Format
-		def from(value)
+		def from(value, options = {})
 			raise FormatNotDefinedException
 		end
 
-		def to(str)
+		def to(str, options = {})
 			raise FormatNotDefinedException
 		end
 	end
