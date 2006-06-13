@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'action_view'
+
 module Formatters
 	class FormatDecimal < Format
 		include ActionView::Helpers::NumberHelper
@@ -7,6 +10,7 @@ module Formatters
 		end
 
 		def to(str)
+			return nil if str.nil? or str.empty?
 			str.gsub(/,/, '').to_f
 		end
 	end

@@ -10,6 +10,7 @@ module Formatters
 		end
 
 		def to(str)
+			return nil if str.nil? or str.empty?
 			str.gsub(/[^0-9]/, '')
 		end
 	end
