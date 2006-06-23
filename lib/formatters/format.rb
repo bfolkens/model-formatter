@@ -1,5 +1,8 @@
 module Formatters
 	class Format
+		def initialize(options = {})
+		end
+
 		def from(value, options = {})
 			raise FormatNotDefinedException
 		end

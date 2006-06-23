@@ -5,8 +5,11 @@ module Formatters
 	class FormatPercent < Format
 		include ActionView::Helpers::NumberHelper
 
+		def initialize(options = {})
+		end
+
 		def from(value, options = {})
-			number_to_percentage value
+			number_to_percentage value, options
 		end
 
 		def to(str, options = {})

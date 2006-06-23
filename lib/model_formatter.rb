@@ -10,14 +10,11 @@ module ModelFormatter # :nodoc:
 		options[:prefix] ||= "formatted_"
 		options[:formatted_attr] ||= "#{options[:prefix]}#{attr}"
 
-		# If :as is set, then it must be either a formatter Class, Symbol, or String
-		options[:as] = formatter_class_for(options[:as]) unless options[:as].nil?
+		# If :as is set, then it must be either a formatter Class, formatter Object, Symbol, or String
+		options[:formatter] = formatter_for(options[:as], options[:options]) unless options[:as].nil?
 
-		# Define the :as from a :block if :block is defined
-		options[:as] = define_formatter(attr, &options[:block]) unless options[:block].nil?
-
-		# Instantiate the formatter for this attribute if we've been called with :as or a block
-		options[:formatter] = options[:as].new unless options[:as].nil?
+		# Define the formatter from a :block if :block is defined
+		options[:formatter] = define_formatter(attr, &options[:block]) unless options[:block].nil?
 
 		# Define :formatter from a block based on :from and :to if they're both set
 		if !options[:from].nil? and !options[:to].nil?
@@ -33,8 +30,8 @@ module ModelFormatter # :nodoc:
 	end
 
 	# Define a formatter like the actual physical classes
-	# this could easily be done with text similar to the exact
-	# layout of the format classes, but this should be faster.
+	# this could easily be done with text and an eval...
+	# but this should be faster
 	def self.define_formatter(attr, &formatter) # :nodoc:
 		# The convention is to name these custom formatters
 		# differently than the other formatting classes
@@ -48,16 +45,20 @@ module ModelFormatter # :nodoc:
 
 		# Define the class body
 		clazz.class_eval &formatter
-		return clazz
+		return clazz.new
 	end
 
-	# Return the formatter class for a class, symbol, or string defining
-	# the name of a formatter class.	If it's a symbol, check the Formatters
-	# module for the class that matches the camelized name of the symbol
-	# with 'Format' prepended.
-	def self.formatter_class_for(type_name) # :nodoc:
-		# If the type_name is a class, don't do anything to it
-		formatter_class = type_name if type_name.kind_of? Class
+	# Return the formatter for a class, formatter object, symbol, or
+	# string defining the name of a formatter class.  If it's a symbol, check
+	# the Formatters module for the class that matches the camelized name
+	# of the symbol with 'Format' prepended.  Options hash is passed to the
+	# instantiation of the formatter object.
+	def self.formatter_for(type_name, options = {}) # :nodoc:
+		# If the type_name is an instance of a formatter, just return with it
+		return type_name if type_name.is_a? Formatters::Format
+
+		# If the type_name is a class just assign it to the formatter_class for instantiation later
+		formatter_class = type_name if type_name.is_a? Class
 
 		# Format a symbol or string into a formatter_class
 		if type_name.is_a? Symbol or type_name.is_a? String
@@ -75,8 +76,8 @@ module ModelFormatter # :nodoc:
 
 		# Make sure the name of this is found in the Formatters module and that
 		# it's the correct superclass
-		return formatter_class unless formatter_class.nil? or
-																	formatter_class.superclass != Formatters::Format
+		return formatter_class.new(options) unless formatter_class.nil? or
+																								formatter_class.superclass != Formatters::Format
 
 		raise Formatters::FormatNotFoundException.new("Cannot find formatter 'Formatters::#{formatter_name}'")
 	end
@@ -90,9 +91,10 @@ module ModelFormatter # :nodoc:
 	#
 	#    # Specify the type as a class
 	#    format_column :sales_tax, :as => Formatters::FormatCurrency
+	#    format_column :sales_tax, :as => Formatters::FormatCurrency.new(:precision => 4)
 	#
 	#    # Change the prefix of the generated methods and specify type as a symbol
-	#    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:on_empty => 'N/A'}
+	#    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:precision => 4}
 	#
 	#    # Use specific procedures to convert the data +from+ and +to+ the target
 	#    format_column :area, :from => Proc.new {|value, options| number_with_delimiter sprintf('%2d', value)},
@@ -118,7 +120,7 @@ module ModelFormatter # :nodoc:
 			:as => nil,
 			:from => nil,
 			:to => nil,
-			:options => nil
+			:options => {}
 		}.freeze
 
 		# After calling "<tt>format_column :sales_tax</tt>" as in the example above, a number of instance methods
@@ -140,7 +142,7 @@ module ModelFormatter # :nodoc:
 		#   manipulated attribute.
 		# * <tt>:to</tt>       - Data being sent to the attribute setter method is sent to this +Proc+ first to be manipulated,
 		#   and the returned attribute is then sent to the attribute setter.
-		# * <tt>:options</tt>  - Passed to the formatter blocks and/or methods as additional formatting options.
+		# * <tt>:options</tt>  - Passed to the formatter blocks, instantiating formatter classes and/or methods as additional formatting options.
 		def format_column(attr, options={}, &fmt_block)
 			options[:block] = fmt_block if block_given?
 			options = DEFAULT_OPTIONS.merge(options) if options

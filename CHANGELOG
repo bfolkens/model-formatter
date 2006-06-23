@@ -1,0 +1,4 @@
+*svn*
+	* added option to pass instance of a formatter
+	* added options to instantiation of the formatter
+	* added precision options to currency formatter, which now also stores currencies as an integer

@@ -1,11 +1,16 @@
 module Formatters
 	class FormatBoolean < Format
+		def initialize(options = {})
+		  @on = 'yes'
+		  @off = 'no'
+		end
+
 		def from(value, options = {})
-			value ? 'yes' : 'no'
+			value ? @on : @off
 		end
 
 		def to(str, options = {})
-			str == 'yes'
+			str == @on
 		end
 	end
 end

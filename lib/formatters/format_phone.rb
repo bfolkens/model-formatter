@@ -5,8 +5,11 @@ module Formatters
 	class FormatPhone < Format
 		include ActionView::Helpers::NumberHelper
 
+		def initialize(options = {})
+		end
+
 		def from(value, options = {})
-			number_to_phone value
+			number_to_phone value, options
 		end
 
 		def to(str, options = {})

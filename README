@@ -9,9 +9,10 @@ columns as "formatted columns" like in this example:
 
     # Specify the type as a class
     format_column :sales_tax, :as => Formatters::FormatCurrency
+    format_column :sales_tax, :as => Formatters::FormatCurrency.new(:precision => 4)
 
     # Change the prefix of the generated methods and specify type as a symbol
-    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:on_empty => 'N/A'}
+    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:precision => 4}
 
     # Use specific procedures to convert the data +from+ and +to+ the target
     format_column :area, :from => Proc.new {|value, options| number_with_delimiter sprintf('%2d', value)},

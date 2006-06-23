@@ -5,8 +5,12 @@ module Formatters
 	class FormatInteger < Format
 		include ActionView::Helpers::NumberHelper
 
+		def initialize(options = {})
+		end
+
 		def from(value, options = {})
-			number_with_delimiter value
+		  options = {:delimiter => ','}.merge(options)
+			number_with_delimiter value, options[:delimiter]
 		end
 
 		def to(str, options = {})
