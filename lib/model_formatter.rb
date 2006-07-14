@@ -1,3 +1,19 @@
+class Object
+   # The hidden singleton lurks behind everyone
+   def metaclass; class << self; self; end; end
+   def meta_eval &blk; metaclass.instance_eval &blk; end
+
+   # Adds methods to a metaclass
+   def meta_def name, &blk
+     meta_eval { define_method name, &blk }
+   end
+
+   # Defines an instance method within a class
+   def class_def name, &blk
+     class_eval { define_method name, &blk }
+   end
+end
+
 module ModelFormatter # :nodoc:
 	def self.append_features(base) # :nodoc:
 		super
@@ -113,6 +129,7 @@ module ModelFormatter # :nodoc:
 	#    ...
 	#  end
 	module ClassMethods
+  
 		# You can override the default options with +model_formatter+'s +options+ parameter
 		DEFAULT_OPTIONS = {
 			:prefix => nil,
@@ -127,6 +144,8 @@ module ModelFormatter # :nodoc:
 		# will automatically be generated, all prefixed by "formatted_" unless :prefix or :formatter_attr
 		# have been set:
 		#
+		# * <tt>Widget.sales_tax_formatter(value)</tt>: Format the sales tax and return the formatted version
+		# * <tt>Widget.sales_tax_unformatter(str)</tt>: "Un"format sales tax and return the unformatted version
 		# * <tt>Widget#formatted_sales_tax=(value)</tt>: This will set the <tt>sales_tax</tt> of the widget using the value stripped of its formatting.
 		# * <tt>Widget#formatted_sales_tax</tt>: This will return the <tt>sales_tax</tt> of the widget using the formatter specified in the options to +format+.
 		# * <tt>Widget#sales_tax_formatting_options</tt>: Access the options this formatter was created with.  Useful for declaring field length and later referencing it in display helpers.
@@ -152,28 +171,43 @@ module ModelFormatter # :nodoc:
 																								Inflector.underscore(self.name).to_s,
 																								attr.to_s)
 
-			# Define the setter for attr
+
+      # Create the class methods
+  		attr_fmt_options_accessor = "#{attr}_formatting_options".to_sym
+  		attr_formatter_method = "#{attr}_formatter".to_sym
+  		attr_unformatter_method = "#{attr}_unformatter".to_sym
+
+      metaclass.class_eval do
+    		# Create an options accessor
+    		define_method attr_fmt_options_accessor do
+    			my_options
+    		end
+
+    		# Define a formatter accessor
+    		define_method attr_formatter_method do |value|
+    		  return value if value.nil?
+
+    			from_method = my_options[:formatter].method(:from)
+    			from_method.call(value, my_options[:options])
+    	  end
+
+    		# Define an unformatter accessor
+    		define_method attr_unformatter_method do |str|
+    			to_method = my_options[:formatter].method(:to)
+    			to_method.call(str, my_options[:options])
+    	  end
+      end
+
+			# Define the instance method formatter for attr
 			define_method my_options[:formatted_attr] do ||
 				value = self.send(attr)
-				return value if value.nil?
-
-				from_method = my_options[:formatter].method(:from)
-				from_method.call(value, my_options[:options])
+        self.class.send attr_formatter_method, value
 			end
 
-			# Define the getter for attr
+			# Define the instance method unformatter for attr
 			define_method my_options[:formatted_attr] + '=' do |str|
-				to_method = my_options[:formatter].method(:to)
-				value = to_method.call(str, my_options[:options])
-
+			  value = self.class.send(attr_unformatter_method, str)
 				self.send(attr.to_s + '=', value)
-			end
-
-			# This creates a closure keeping a reference to my_options
-			# right now that's the only way we store the options. We
-			# might use a class attribute as well
-			define_method "#{attr}_formatting_options" do
-				my_options
 			end
 		end
 

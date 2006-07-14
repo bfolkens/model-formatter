@@ -22,7 +22,7 @@ class ModelFormatterTest < Test::Unit::TestCase
 		Entry.format_column :super_precise_tax, :as => Formatters::FormatCurrency.new(:precision => 6)
 
 		Entry.format_column :area, :from => Proc.new {|value, options| sprintf('%2d', value) + options[:sample_format]},
-															 :to => Proc.new {|str, options| str.gsub(/[^0-9]/, '')},
+															 :to => Proc.new {|str, options| str.gsub(/[^0-9]/, '').to_i},
 															 :options => {:sample_format => ' sq. ft.'}
 
 		Entry.format_column :complex_field do
@@ -37,6 +37,11 @@ class ModelFormatterTest < Test::Unit::TestCase
 
 		Entry.format_column :phone, :as => :phone
 	end
+	
+	def test_should_define_format_accessors
+	  assert Entry.respond_to?('some_integer_formatter')
+	  assert Entry.respond_to?('some_integer_unformatter')
+  end
 
 	def test_should_define_getters
 		assert Entry.new.respond_to?('formatted_some_integer')
@@ -60,27 +65,36 @@ class ModelFormatterTest < Test::Unit::TestCase
 
 	def test_should_respond_to_basic_definition
 		e = Entry.new
+		
+		assert_equal '3,123', Entry.some_integer_formatter(3123)
 		e.some_integer = 3123
 		assert_equal '3,123', e.formatted_some_integer
 
+		assert_equal 3123, Entry.some_integer_unformatter('3,123')
 		e.formatted_some_integer = '3,123'
 		assert_equal 3123, e.some_integer
 	end
 
 	def test_should_respond_to_proc_definition
 		e = Entry.new
+		
+		assert_equal '3123 sq. ft.', Entry.area_formatter(3123)
 		e.area = 3123
 		assert_equal '3123 sq. ft.', e.formatted_area
 
+		assert_equal 3123, Entry.area_unformatter('3123 sq. ft.')
 		e.formatted_area = '3123 sq. ft.'
 		assert_equal 3123, e.area
 	end
 
 	def test_should_respond_to_block_definition
 		e = Entry.new
+		
+		assert_equal 'bouya test me', Entry.complex_field_formatter('test me')
 		e.complex_field = 'test me'
 		assert_equal 'bouya test me', e.formatted_complex_field
 
+		assert_equal 'here and bouya there', Entry.complex_field_unformatter('bouya here and bouya there')
 		e.formatted_complex_field = 'bouya here and bouya there'
 		assert_equal 'here and bouya there', e.complex_field
 	end
@@ -88,7 +102,11 @@ class ModelFormatterTest < Test::Unit::TestCase
 	def test_should_pass_options_upon_instantiation
 		e = Entry.new
 		
-		# Check symbol use
+		# Check format accessors
+		assert_equal '$12,412.292', Entry.sales_tax_formatter(12412292)
+		assert_equal 12412292, Entry.sales_tax_unformatter('$12,412.292')
+		
+		# Check symbol use		
 		e.sales_tax = 12412292
 		assert_equal '$12,412.292', e.formatted_sales_tax
 
