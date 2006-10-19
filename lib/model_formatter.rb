@@ -211,5 +211,8 @@ module ModelFormatter # :nodoc:
 			end
 		end
 
+    def is_formatted?(attr)
+      self.respond_to? attr.to_s + '_formatter' and self.respond_to? attr.to_s + '_unformatter'
+    end
 	end
 end

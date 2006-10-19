@@ -62,6 +62,19 @@ class ModelFormatterTest < Test::Unit::TestCase
 		assert Entry.new.respond_to?('formatted_complex_field=')
 		assert Entry.new.respond_to?('formatted_phone=')
 	end
+	
+	def test_should_know_formatters
+	  assert !Entry.is_formatted?(:id)
+
+		assert Entry.is_formatted?(:some_integer)
+		assert Entry.is_formatted?(:some_boolean)
+		assert Entry.is_formatted?(:sales_tax)
+
+		assert Entry.is_formatted?('super_precise_tax')
+		assert Entry.is_formatted?('area')
+		assert Entry.is_formatted?('complex_field')
+		assert Entry.is_formatted?('phone')
+  end
 
 	def test_should_respond_to_basic_definition
 		e = Entry.new
