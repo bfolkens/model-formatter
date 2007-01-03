@@ -78,7 +78,7 @@ module ModelFormatter # :nodoc:
 
 		# Format a symbol or string into a formatter_class
 		if type_name.is_a? Symbol or type_name.is_a? String
-			type_name = type_name.to_s.capitalize
+			type_name = type_name.to_s.camelize
 
 			# Construct the class name from the type_name
 			formatter_name = "Format#{type_name}"
