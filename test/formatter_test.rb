@@ -1,8 +1,9 @@
 require 'test/unit'
 require 'rubygems'
-require 'active_support'
 require 'active_record'
+require 'action_controller'
 require 'action_view'
+require 'active_support'
 require File.dirname(__FILE__) + '/../lib/formatters'
 
 class FormattersTest < Test::Unit::TestCase

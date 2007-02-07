@@ -15,6 +15,8 @@ class Object
 end
 
 module ModelFormatter # :nodoc:
+  DEFAULT_FORMAT_PREFIX = 'formatted_'
+  
 	def self.append_features(base) # :nodoc:
 		super
 		base.extend(ClassMethods)
@@ -23,7 +25,7 @@ module ModelFormatter # :nodoc:
 	def self.init_options(defaults, model, attr) # :nodoc:
 		options = defaults.dup
 		options[:attr] = attr
-		options[:prefix] ||= "formatted_"
+		options[:prefix] ||= DEFAULT_FORMAT_PREFIX
 		options[:formatted_attr] ||= "#{options[:prefix]}#{attr}"
 
 		# If :as is set, then it must be either a formatter Class, formatter Object, Symbol, or String
@@ -173,9 +175,9 @@ module ModelFormatter # :nodoc:
 
 
       # Create the class methods
-  		attr_fmt_options_accessor = "#{attr}_formatting_options".to_sym
-  		attr_formatter_method = "#{attr}_formatter".to_sym
-  		attr_unformatter_method = "#{attr}_unformatter".to_sym
+  		attr_fmt_options_accessor = "#{my_options[:formatted_attr]}_formatting_options".to_sym
+  		attr_formatter_method = "#{my_options[:formatted_attr]}_formatter".to_sym
+  		attr_unformatter_method = "#{my_options[:formatted_attr]}_unformatter".to_sym
 
       metaclass.class_eval do
     		# Create an options accessor
@@ -212,7 +214,7 @@ module ModelFormatter # :nodoc:
 		end
 
     def is_formatted?(attr)
-      self.respond_to? attr.to_s + '_formatter' and self.respond_to? attr.to_s + '_unformatter'
+      !public_methods.reject {|method| method !~ /#{attr.to_s}_formatting_options$/}.empty?
     end
 	end
 end
