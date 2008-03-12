@@ -14,7 +14,7 @@ module Formatters
 
 		def to(str, options = {})
 			return nil if str.nil? or str.empty?
-			str.gsub(/[^0-9\.]/, '').to_f
+			str.gsub(/[^0-9\.\-]/, '').to_f
 		end
 	end
 end
