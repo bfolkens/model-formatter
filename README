@@ -1,6 +1,6 @@
 == Overview
 The ModelFormatter module allows you to easily handle fields that need to be formatted or stripped
-of formatting as the are set or retrieved from the database. You can designate one or more of your
+of formatting as they are set or retrieved from the database. You can designate one or more of your
 columns as "formatted columns" like in this example:
 
   class Widget < ActiveRecord::Base
