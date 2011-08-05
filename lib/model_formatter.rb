@@ -170,7 +170,7 @@ module ModelFormatter # :nodoc:
 
 			# Create the actual options
 			my_options = ModelFormatter::init_options(options, 
-																								Inflector.underscore(self.name).to_s,
+																								ActiveSupport::Inflector.underscore(self.name).to_s,
 																								attr.to_s)
 
 
