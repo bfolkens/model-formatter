@@ -1,3 +1,5 @@
+require "model_formatter/version"
+
 class Object
    # The hidden singleton lurks behind everyone
    def metaclass; class << self; self; end; end
