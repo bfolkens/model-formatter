@@ -218,3 +218,5 @@ module ModelFormatter # :nodoc:
     end
 	end
 end
+
+ActiveRecord::Base.send(:include, ModelFormatter)
