@@ -6,10 +6,9 @@ require 'action_view'
 require File.dirname(__FILE__) + '/connection'
 RAILS_ROOT = File.dirname(__FILE__)
 
-$: << "../"
 $: << "../lib"
 
-require 'init'
+require 'model_formatter'
 require File.dirname(__FILE__) + '/fixtures/entry'
 
 
