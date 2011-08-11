@@ -10,7 +10,7 @@ module Formatters
 
 		def from(value, options = {})
 		  options = {:delimiter => ','}.merge(options)
-			number_with_delimiter value, options[:delimiter]
+			number_with_delimiter value, options
 		end
 
 		def to(str, options = {})

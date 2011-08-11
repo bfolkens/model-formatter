@@ -1,3 +1,5 @@
+require "model_formatter/version"
+
 class Object
    # The hidden singleton lurks behind everyone
    def metaclass; class << self; self; end; end
@@ -170,7 +172,7 @@ module ModelFormatter # :nodoc:
 
 			# Create the actual options
 			my_options = ModelFormatter::init_options(options, 
-																								Inflector.underscore(self.name).to_s,
+																								ActiveSupport::Inflector.underscore(self.name).to_s,
 																								attr.to_s)
 
 
@@ -218,3 +220,5 @@ module ModelFormatter # :nodoc:
     end
 	end
 end
+
+ActiveRecord::Base.send(:include, ModelFormatter)
