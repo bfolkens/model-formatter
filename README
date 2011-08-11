@@ -45,7 +45,7 @@ By default, the ModelFormatter plugin uses the mysql +test+ database, running on
 <tt>rake</tt>
 
 == Bugs & Feedback
-Please file a bug report at http://bfolkens.lighthouseapp.com/projects/14691-model-formatter
+Please file a bug report at http://github.com/bfolkens/model-formatter/issues
 
 == Credits
 Sebastian Kanthak's file_column plugin - used for ideas and best practices.
