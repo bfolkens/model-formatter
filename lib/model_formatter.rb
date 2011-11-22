@@ -170,7 +170,7 @@ module ModelFormatter # :nodoc:
 
 			# Create the actual options
 			my_options = ModelFormatter::init_options(options, 
-																								Inflector.underscore(self.name).to_s,
+																								ActiveSupport::Inflector.underscore(self.name).to_s,
 																								attr.to_s)
 
 
@@ -201,8 +201,8 @@ module ModelFormatter # :nodoc:
       end
 
 			# Define the instance method formatter for attr
-			define_method my_options[:formatted_attr] do ||
-				value = self.send(attr)
+			define_method my_options[:formatted_attr] do |params|
+				value = self.send(attr, params)
         self.class.send attr_formatter_method, value
 			end
 
