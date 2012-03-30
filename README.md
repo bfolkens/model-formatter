@@ -1,4 +1,5 @@
-== Overview
+## Overview
+
 The ModelFormatter module allows you to easily handle fields that need to be formatted or stripped
 of formatting as they are set or retrieved from the database. You can designate one or more of your
 columns as "formatted columns" like in this example:
@@ -34,19 +35,27 @@ columns as "formatted columns" like in this example:
 The methods of this module are automatically included into <tt>ActiveRecord::Base</tt>
 as class methods, so that you can use them in your models.
 
-== Documentation
+
+## Documentation
+
 For more detailed documentation, create the rdocs with the following command:
 
 <tt>rake rdoc</tt>
 
-== Running Unit Tests
+
+## Running Unit Tests
+
 By default, the ModelFormatter plugin uses the mysql +test+ database, running on +localhost+.  To run the tests, enter the following:
 
 <tt>rake</tt>
 
-== Bugs & Feedback
+
+## Bugs & Feedback
+
 Please file a bug report at http://github.com/bfolkens/model-formatter/issues
 
-== Credits
+
+## Credits
+
 Sebastian Kanthak's file_column plugin - used for ideas and best practices.
 
