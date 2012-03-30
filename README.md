@@ -4,35 +4,35 @@ The ModelFormatter module allows you to easily handle fields that need to be for
 of formatting as they are set or retrieved from the database. You can designate one or more of your
 columns as "formatted columns" like in this example:
 
-  class Widget < ActiveRecord::Base
-    # Set an integer field as a symbol
-    format_column :some_integer, :as => :integer
+    class Widget < ActiveRecord::Base
+      # Set an integer field as a symbol
+      format_column :some_integer, :as => :integer
 
-    # Specify the type as a class
-    format_column :sales_tax, :as => Formatters::FormatCurrency
-    format_column :sales_tax, :as => Formatters::FormatCurrency.new(:precision => 4)
+      # Specify the type as a class
+      format_column :sales_tax, :as => Formatters::FormatCurrency
+      format_column :sales_tax, :as => Formatters::FormatCurrency.new(:precision => 4)
 
-    # Change the prefix of the generated methods and specify type as a symbol
-    format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:precision => 4}
+      # Change the prefix of the generated methods and specify type as a symbol
+      format_column :sales_tax, :prefix => 'fmt_', :as => :currency, :options => {:precision => 4}
 
-    # Use specific procedures to convert the data +from+ and +to+ the target
-    format_column :area, :from => Proc.new {|value, options| number_with_delimiter sprintf('%2d', value)},
-                         :to => Proc.new {|str, options| str.gsub(/,/, '')}
+      # Use specific procedures to convert the data +from+ and +to+ the target
+      format_column :area, :from => Proc.new {|value, options| number_with_delimiter sprintf('%2d', value)},
+                           :to => Proc.new {|str, options| str.gsub(/,/, '')}
 
-    # Use a block to define the formatter methods
-    format_column :sales_tax do
-      def from(value, options = {})
-        number_to_currency value
+      # Use a block to define the formatter methods
+      format_column :sales_tax do
+        def from(value, options = {})
+          number_to_currency value
+        end
+        def to(str, options = {})
+          str.gsub(/[\$,]/, '')
+        end
       end
-      def to(str, options = {})
-        str.gsub(/[\$,]/, '')
-      end
+
+      ...
     end
 
-    ...
-  end
-
-The methods of this module are automatically included into <tt>ActiveRecord::Base</tt>
+The methods of this module are automatically included into `ActiveRecord::Base`
 as class methods, so that you can use them in your models.
 
 
@@ -40,14 +40,14 @@ as class methods, so that you can use them in your models.
 
 For more detailed documentation, create the rdocs with the following command:
 
-<tt>rake rdoc</tt>
+    rake rdoc
 
 
 ## Running Unit Tests
 
 By default, the ModelFormatter plugin uses the mysql +test+ database, running on +localhost+.  To run the tests, enter the following:
 
-<tt>rake</tt>
+    rake
 
 
 ## Bugs & Feedback
