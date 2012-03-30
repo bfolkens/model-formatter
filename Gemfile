@@ -3,7 +3,6 @@ source "http://rubygems.org"
 # Specify your gem's dependencies in model_formatter.gemspec
 gemspec
 
-gem 'actionpack'
-gem 'activerecord'
+gem 'rails'
 gem 'mysql'
 gem 'rake'
