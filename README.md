@@ -54,6 +54,7 @@ By default, the ModelFormatter plugin uses the mysql +test+ database, running on
 
 Please file a bug report at http://github.com/bfolkens/model-formatter/issues
 
+[![Build Status](https://secure.travis-ci.org/bfolkens/model-formatter.png)](http://travis-ci.org/bfolkens/model-formatter)
 
 ## Credits
 
