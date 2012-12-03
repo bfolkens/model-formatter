@@ -3,8 +3,9 @@ require 'rubygems'
 require 'active_support'
 require 'active_record'
 require 'action_view'
-require File.dirname(__FILE__) + '/connection'
-RAILS_ROOT = File.dirname(__FILE__)
+
+require 'connection'
+#RAILS_ROOT = File.dirname(__FILE__)
 
 $: << "../lib"
 
