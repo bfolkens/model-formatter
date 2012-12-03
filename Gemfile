@@ -4,5 +4,5 @@ source "http://rubygems.org"
 gemspec
 
 gem 'rails'
-gem 'rake'
+gem 'rake', '0.8.7'
 gem 'sqlite3'
