@@ -1,3 +1,5 @@
 module ModelFormatter
-  Version = "0.0.1"
+  def self.version
+    "0.0.2"
+  end
 end

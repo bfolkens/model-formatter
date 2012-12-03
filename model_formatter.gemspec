@@ -4,10 +4,10 @@ require "model_formatter/version"
 
 Gem::Specification.new do |s|
   s.name        = "model_formatter"
-  s.version     = ModelFormatter::Version
+  s.version     = ModelFormatter.version
   s.authors     = ["Brad Folkens", "Tyler Rick"]
   s.email       = ["tyler@tylerrick.com"]
-  s.homepage    = "https://github.com/TylerRick/model-formatter"
+  s.homepage    = "https://github.com/TylerRick/model_formatter"
   s.summary     = %q{Allows you to easily handle fields in Rails / ActiveRecord that need to be formatted or stripped of formatting as they are set or retrieved from the database.}
   s.description = s.summary
 
