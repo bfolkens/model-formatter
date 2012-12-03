@@ -4,9 +4,12 @@ require 'active_support'
 require 'active_record'
 require 'action_view'
 
-require File.dirname(__FILE__) + '/connection'
-require File.dirname(__FILE__) + '/../lib/model_formatter'
-require File.dirname(__FILE__) + '/fixtures/entry'
+$:.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+$:.unshift File.expand_path(File.dirname(__FILE__))
+
+require 'connection'
+require 'model_formatter'
+require 'fixtures/entry'
 
 
 class ModelFormatterTest < Test::Unit::TestCase
