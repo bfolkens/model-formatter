@@ -7,8 +7,9 @@ Gem::Specification.new do |s|
   s.authors     = ["Brad Folkens", "Tyler Rick"]
   s.email       = ["bfolkens@gmail.com", "tyler@tylerrick.com"]
   s.homepage    = "https://github.com/bfolkens/model-formatter"
-  s.summary     = %q{Allows you to easily handle fields in Rails / ActiveRecord that need to be formatted or stripped of formatting as they are set or retrieved from the database.}
-  s.description = s.summary
+  s.summary     = %q{Easily handle fields in ActiveRecord that need to be formatted or stripped of formatting as they are set or retrieved.}
+  s.description = %q{Allows you to easily handle fields in Rails / ActiveRecord that need to be formatted or stripped of formatting as they are set or retrieved from the database.}
+	s.license			= 'MIT'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
