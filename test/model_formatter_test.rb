@@ -1,4 +1,4 @@
-require 'test/unit'
+require 'minitest/autorun'
 require 'rubygems'
 require 'active_support'
 require 'active_record'
@@ -12,7 +12,7 @@ require 'model_formatter'
 require 'fixtures/entry'
 
 
-class ModelFormatterTest < Test::Unit::TestCase
+class ModelFormatterTest < Minitest::Test
 	def setup
 		Entry.format_column :some_integer, :as => :integer
 		Entry.format_column :some_boolean, :prefix => 'fmt_', :as => :boolean

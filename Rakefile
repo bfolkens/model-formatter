@@ -1,7 +1,7 @@
 require 'bundler/gem_tasks'
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
 
 desc 'Default: run unit tests.'
 task :default => :test
@@ -14,7 +14,7 @@ Rake::TestTask.new(:test) do |t|
 end
 
 desc 'Generate documentation for the model_formatter plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
+RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'ModelFormatter'
   rdoc.options << '--line-numbers' << '--inline-source'
